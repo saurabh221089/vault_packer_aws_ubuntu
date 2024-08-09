@@ -24,11 +24,10 @@ locals {
 
 source "amazon-ebs" "ubuntu" {
   ami_name      = "packer-ubuntu-{{timestamp}}"
-  instance_type = "t2.micro"
-  use_vault_aws_engine = true
+  instance_type = "t3.micro"
   source_ami_filter {
     filters = {
-      name                = "ubuntu/images/*ubuntu-focal-20.04-amd64-server-*"
+      name                = "ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"
       root-device-type    = "ebs"
       virtualization-type = "hvm"
     }
@@ -37,16 +36,14 @@ source "amazon-ebs" "ubuntu" {
     }
   ssh_username = "ubuntu"
   tags = {
-    "Name"        = "MyUbuntuImage"
-    "Environment" = "Production"
+    "Name"        = "packer-ubuntu2004"
+    "Environment" = "Development"
     "OS_Version"  = "Ubuntu 20.04"
   }
 
   vault_aws_engine {
     name = "my-ec2-role"
     engine_name = "aws"
-    #role_arn = "Optional if the Vault role has a single AWS role ARN; required otherwise"
-    ttl         = "3600s"
   }
 }
 
@@ -57,7 +54,7 @@ build {
     inline = [ "echo 'This is an AMI created by Hashicorp Packer!!'" ]
   }
 
-  provisioner "shell-local" {
+  provisioner "shell" {
     inline = [ "echo 'API_KEY secret value is ${local.API_KEY}'" ]
   }
 }
